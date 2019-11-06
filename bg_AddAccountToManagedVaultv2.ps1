@@ -1,4 +1,4 @@
-﻿# This to create an account in Bomgar Managed password store
+# This to create an account in Bomgar Managed password store
 # Also then permisson the group that can manage it.
 #
 # created  Date:- 20191101
@@ -37,28 +37,26 @@ if ((Get-LSListAvailableAccounts -AuthenticationToken $tok -Search $sAccountName
     }
     Else
     {
-    Write-Output "not found.... creating"
-    Set-LSPassword -AccountName $sAccountName -AssetTag $sAssetTag -AuthenticationToken $tok -Comment $sComment -GroupName $sGroupName -Namespace $sNamespace -Password $sPass -SystemName $sSystemName
+        Write-Output "not found.... creating"
+        Set-LSPassword -AccountName $sAccountName -AssetTag $sAssetTag -AuthenticationToken $tok -Comment $sComment -GroupName $sGroupName -Namespace $sNamespace -Password $sPass -SystemName $sSystemName
 
+        ## Creating a Deligation on that above account for DomainName\ManagedAccount Group
+        $tok = Get-LSLoginToken -Credential $cred
+        
+        $PAPerm = New-Object –TypeName RouletteWebService.DelegationPermissionOnAccount
+        $PAPerm.IdentityName = $sIdentityName 
+        $PAPerm.SystemName = $sSystemName
+        $PAPerm.NameSpace = $sNamespace
+        $PAPerm.AccountName = $sAccountName
+        $PAPerm.AlertForIncident = 0
+        $PAPerm.AlertForChange = 0
+        $PAPerm.PermissionViewAccounts = 1
+        $PAPerm.PermissionViewPasswords = 1
+        $PAPerm.PermissionRequestPasswords = 0
+        $PAPerm.PermissionGrantPasswordRequests = 1
+        $PAPerm.PermissionAllowRemoteSessions = 1
+
+        Set-LSDelegationPermissionOnAccount -AuthenticationToken $tok -PermissionOnAccount $PAPerm
     }
 
 
-
-## Creating a Deligation on that above account for DomainName\ManagedAccount Group
-$tok = Get-LSLoginToken -Credential $cred
-
-
-$PAPerm = New-Object –TypeName RouletteWebService.DelegationPermissionOnAccount
-$PAPerm.IdentityName = $sIdentityName 
-$PAPerm.SystemName = $sSystemName
-$PAPerm.NameSpace = $sNamespace
-$PAPerm.AccountName = $sAccountName
-$PAPerm.AlertForIncident = 0
-$PAPerm.AlertForChange = 0
-$PAPerm.PermissionViewAccounts = 1
-$PAPerm.PermissionViewPasswords = 1
-$PAPerm.PermissionRequestPasswords = 0
-$PAPerm.PermissionGrantPasswordRequests = 1
-$PAPerm.PermissionAllowRemoteSessions = 1
-
-Set-LSDelegationPermissionOnAccount -AuthenticationToken $tok -PermissionOnAccount $PAPerm
